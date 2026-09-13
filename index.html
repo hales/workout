@@ -20,8 +20,8 @@
   "use strict";
 
   // ---- FILL THESE IN to share data across the family ----------------
-  var SUPABASE_URL  = "https://syxvutpzywivqvaismzh.supabase.co";   // e.g. "https://abcdefgh.supabase.co"
-  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5eHZ1dHB6eXdpdnF2YWlzbXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjU4NjMsImV4cCI6MjEwNDg0MTg2M30.QfXAHapoDWyNIfOk1N_sFX0pVraovdcsMCZ5FrA69s4";
+  var SUPABASE_URL  = "";   // e.g. "https://abcdefgh.supabase.co"
+  var SUPABASE_ANON = "";   // the anon/publishable key
   var TABLE         = "kv";
   // -------------------------------------------------------------------
 
@@ -274,6 +274,11 @@
   .task .label{flex:1;font-size:14.5px}
   .task[data-on="1"] .label{color:var(--dim)}
   .task .meta{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums}
+  .task.amt{gap:9px}
+  .task.amt .label{display:flex;flex-direction:column;gap:5px}
+  .task.amt input{width:64px;flex:none;text-align:center;padding:6px 4px}
+  .wkbar{display:block;height:3px;border-radius:2px;background:rgba(0,0,0,.22);overflow:hidden;max-width:150px}
+  .wkbar i{display:block;height:100%;border-radius:2px}
   .task:disabled{cursor:default}
   .task:disabled .box{opacity:.3}
   .task:disabled .label{color:var(--faint)}
@@ -411,13 +416,16 @@
       { id:"john", name:"John", hue:HUES[1], goalLbs:20, start:201,
         daily:[{id:"am",label:"Morning routine (10 min)"},{id:"pm",label:"Evening routine (10 min)"}],
         weekly:[] },
+      { id:"evan", name:"Evan", hue:HUES[3], goalLbs:30, start:215,
+        daily:[{id:"am",label:"Morning routine (10 min)"},{id:"pm",label:"Evening routine (10 min)"}],
+        weekly:[{id:"walk",label:"Walking",times:5,unit:"mi"}] },
       { id:"haley", name:"Haley", hue:HUES[2], goalLbs:0, start:null,
         daily:[],
         weekly:[{id:"cardio",label:"Cardio",times:1},{id:"pilates",label:"Pilates",times:2}] }
     ];
   }
 
-  function blankLog(){ return { days:{}, weights:{} }; }
+  function blankLog(){ return { days:{}, weights:{}, amounts:{} }; }
 
   /* ---------- storage ---------- */
   function has(){ return typeof window !== "undefined" && window.storage; }
@@ -437,20 +445,23 @@
     }
     state.roster = roster;
 
-    var SEEDED = { michelle:180, john:201 }, patched = false;
+    var SEEDED = { michelle:180, john:201, evan:215 }, patched = false;
     var mig = null;
     try{ var mg = await window.storage.get("fc:mig", true); mig = mg && mg.value; }catch(e){ mig = null; }
-    var fresh = mig !== "4";
+    var fresh = mig !== "6";
     if(fresh){
-      if(!roster.some(function(m){ return m.id === "haley"; })){
-        roster.push(seed().filter(function(m){ return m.id === "haley"; })[0]);
-        patched = true;
-      }
+      ["haley","evan"].forEach(function(id){
+        if(!roster.some(function(m){ return m.id === id; })){
+          roster.push(seed().filter(function(m){ return m.id === id; })[0]);
+          patched = true;
+        }
+      });
       // corrected weigh-ins take precedence over whatever was stored
       roster.forEach(function(m){
         if(SEEDED[m.id] !== undefined && m.start !== SEEDED[m.id]){ m.start = SEEDED[m.id]; patched = true; }
+        if(GOALS[m.id] !== undefined && m.goalLbs !== GOALS[m.id]){ m.goalLbs = GOALS[m.id]; patched = true; }
       });
-      try{ await window.storage.set("fc:mig", "4", true); }catch(e){}
+      try{ await window.storage.set("fc:mig", "6", true); }catch(e){}
     }
     if(patched){ try{ await window.storage.set("fc:roster", JSON.stringify(roster), true); }catch(e){} }
 
@@ -522,6 +533,23 @@
     var rec = (state.logs[m.id] || blankLog()).days[d] || [];
     return rec.indexOf(id) > -1;
   }
+  // A goal like "5 miles a week" accumulates a quantity rather than ticks.
+  function amountOf(m, d, id){
+    var log = state.logs[m.id] || blankLog();
+    return (log.amounts && log.amounts[d] && log.amounts[d][id]) || 0;
+  }
+  function weekSum(m, d, id){
+    var mon = mondayOf(d), n = 0;
+    for(var i=0;i<7;i++) n += amountOf(m, shift(mon,i), id);
+    return Math.round(n*100)/100;
+  }
+  function metWeekly(m, d, h){
+    return h.unit ? weekSum(m,d,h.id) >= h.times : weekCount(m,d,h.id) >= h.times;
+  }
+  function didToday(m, d, h){
+    return h.unit ? amountOf(m,d,h.id) > 0 : ticked(m,d,h.id);
+  }
+
   function weekCount(m, d, id){
     var mon = mondayOf(d), n = 0;
     for(var i=0;i<7;i++){ if(ticked(m, shift(mon,i), id)) n++; }
@@ -531,10 +559,10 @@
   // add credit on the days they happen but never count against the days they don't.
   function fillFor(m, d){
     var rec = (state.logs[m.id] || blankLog()).days[d] || [];
-    if(!rec.length) return 0;
     var n = 0, i;
     for(i=0;i<m.daily.length;i++) if(rec.indexOf(m.daily[i].id) > -1) n++;
-    for(i=0;i<m.weekly.length;i++) if(rec.indexOf(m.weekly[i].id) > -1) n++;
+    for(i=0;i<m.weekly.length;i++) if(didToday(m, d, m.weekly[i])) n++;
+    if(!n) return 0;
     var base = m.daily.length || 1;
     return Math.min(1, n/base);
   }
@@ -542,10 +570,12 @@
   function weeklyOnly(m){ return !m.daily.length && m.weekly.length > 0; }
   function weekTarget(m){ return m.weekly.reduce(function(a,b){ return a + b.times; }, 0); }
   function weekDone(m, d){
-    return m.weekly.reduce(function(a,b){ return a + Math.min(b.times, weekCount(m, d, b.id)); }, 0);
+    return m.weekly.reduce(function(a,b){
+      return a + Math.min(b.times, b.unit ? weekSum(m,d,b.id) : weekCount(m,d,b.id));
+    }, 0);
   }
   function weekHit(m, d){
-    return m.weekly.every(function(h){ return weekCount(m, d, h.id) >= h.times; });
+    return m.weekly.every(function(h){ return metWeekly(m, d, h); });
   }
   function firstMonday(from){ var d = from; while(parse(d).getDay() !== 1) d = shift(d,1); return d; }
   function weekTally(m, lo, hi){
@@ -663,6 +693,22 @@
     '</div>';
   }
 
+  function amountRow(m, item, d){
+    var lock = isFuture(d) || !inAny(d);
+    var have = amountOf(m, d, item.id);
+    var wk = weekSum(m, d, item.id);
+    var pct = Math.min(100, Math.round((wk/item.times)*100));
+    return '<div class="task amt">'+
+      '<span class="label">'+esc(item.label)+
+        '<span class="wkbar"><i style="width:'+pct+'%;background:'+m.hue+'"></i></span>'+
+      '</span>'+
+      '<input type="number" step="0.1" min="0" inputmode="decimal" value="'+(have || "")+'" placeholder="0"'+
+        ' data-amt="'+m.id+'" data-aid="'+item.id+'" data-day="'+d+'"'+(lock ? " disabled" : "")+
+        ' aria-label="'+esc(item.label)+' on this day">'+
+      '<span class="meta">'+wk+'/'+item.times+' '+esc(item.unit)+'</span>'+
+    '</div>';
+  }
+
   function taskRow(m, item, kind, d){
     var on = ticked(m, d, item.id);
     var lock = isFuture(d) || !inAny(d);
@@ -707,7 +753,7 @@
     return state.roster.map(function(m){
       var done = dayDone(m, d).length, total = m.daily.length;
       var rows = m.daily.map(function(i){ return taskRow(m,i,"daily",d); }).join("")
-               + m.weekly.map(function(i){ return taskRow(m,i,"weekly",d); }).join("");
+               + m.weekly.map(function(i){ return i.unit ? amountRow(m,i,d) : taskRow(m,i,"weekly",d); }).join("");
       var tally;
       if(weeklyOnly(m)) tally = weekDone(m,d)+" of "+weekTarget(m)+" this week";
       else if(which === "pre") tally = preKept(m)+" of "+preElapsed()+" days";
@@ -1462,6 +1508,22 @@
     }
     if(el.dataset.hab) state.editing[el.dataset.hab][+el.dataset.i].label = el.value;
     if(el.dataset.times) state.editing.weekly[+el.dataset.times].times = Math.max(1, Math.min(7, +el.value || 1));
+  });
+
+  document.addEventListener("change", async function(e){
+    var el = e.target;
+    if(!el.dataset.amt) return;
+    var id = el.dataset.amt, aid = el.dataset.aid, d = el.dataset.day;
+    var v = parseFloat(el.value);
+    var log = state.logs[id] || (state.logs[id] = blankLog());
+    log.amounts = log.amounts || {};
+    if(isNaN(v) || v <= 0){
+      if(log.amounts[d]){ delete log.amounts[d][aid]; if(!Object.keys(log.amounts[d]).length) delete log.amounts[d]; }
+    } else {
+      (log.amounts[d] = log.amounts[d] || {})[aid] = v;
+    }
+    draw();
+    await saveLog(id);
   });
 
   document.addEventListener("keydown", function(e){
