@@ -19,7 +19,7 @@
 (function(){
   "use strict";
 
-   // ---- FILL THESE IN to share data across the family ----------------
+  // ---- FILL THESE IN to share data across the family ----------------
   var SUPABASE_URL  = "https://syxvutpzywivqvaismzh.supabase.co";   // e.g. "https://abcdefgh.supabase.co"
   var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5eHZ1dHB6eXdpdnF2YWlzbXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjU4NjMsImV4cCI6MjEwNDg0MTg2M30.QfXAHapoDWyNIfOk1N_sFX0pVraovdcsMCZ5FrA69s4";
   var TABLE         = "kv";
@@ -39,7 +39,7 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
-  window.CHALLENGE_BUILD = "2026-09-13-i";
+  window.CHALLENGE_BUILD = "2026-09-13-j";
   window.CHALLENGE_LOG = [];
   function note(line){
     window.CHALLENGE_LOG.push(line);
@@ -964,7 +964,7 @@
       '</div>';
     }).join("");
     return '<section>'+
-      '<div class="head"><h2>The season</h2><div class="aside">every day, '+MONTHS[parse(START).getMonth()]+' to '+MONTHS[parse(END).getMonth()]+'</div></div>'+
+      '<div class="head"><h2>Progress</h2><div class="aside">every day, '+MONTHS[parse(START).getMonth()]+' to '+MONTHS[parse(END).getMonth()]+'</div></div>'+
       blocks+
       '<div class="legend">'+
         '<span><i style="background:rgba(36,31,16,.08)"></i>skipped</span>'+
@@ -977,7 +977,7 @@
   }
 
   function tabsNav(){
-    var t = [["pre","Pre-season"],["today","Today"],["season","Season"],["workouts","Workouts"]];
+    var t = [["pre","Pre-season"],["today","Today"],["season","Progress"],["workouts","Workouts"]];
     return '<div class="tabs" role="tablist">'+t.map(function(x){
       return '<button role="tab" data-tab="'+x[0]+'" aria-selected="'+(state.tab===x[0])+'">'+x[1]+'</button>';
     }).join("")+'</div>';
