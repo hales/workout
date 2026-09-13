@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#11322B" />
+<meta name="theme-color" content="#FFD633" />
 <meta name="description" content="Family accountability challenge tracker" />
-<title>The Long Season</title>
+<title>San Giacomo 200 Day Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
-  window.CHALLENGE_BUILD = "2026-09-13-e";
+  window.CHALLENGE_BUILD = "2026-09-13-g";
   window.CHALLENGE_LOG = [];
   function note(line){
     window.CHALLENGE_LOG.push(line);
@@ -141,13 +141,13 @@
 </script>
 <style>
   :root{
-    --ground:#11322B;
-    --ground-2:#0C2520;
-    --chalk:#F0EDE2;
-    --dim:rgba(240,237,226,.56);
-    --faint:rgba(240,237,226,.30);
-    --line:rgba(240,237,226,.13);
-    --sunk:rgba(0,0,0,.16);
+    --ground:#FFD633;
+    --ground-2:#F5C400;
+    --chalk:#241F10;
+    --dim:rgba(36,31,16,.62);
+    --faint:rgba(36,31,16,.38);
+    --line:rgba(36,31,16,.17);
+    --sunk:rgba(0,0,0,.07);
     --serif:"Fraunces",Georgia,"Times New Roman",serif;
     --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
   }
@@ -185,30 +185,30 @@
   .pace-row .tg{font-family:var(--serif);font-weight:500;font-size:16px;font-variant-numeric:tabular-nums}
   .pace-row .ac{font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--faint);min-width:52px;text-align:right}
   .pace-row[data-state="past"] .mn,.pace-row[data-state="past"] .tg{color:var(--dim)}
-  .pace-row[data-state="soon"]{margin:0 -14px;padding-left:14px;padding-right:14px;background:rgba(240,237,226,.05)}
+  .pace-row[data-state="soon"]{margin:0 -14px;padding-left:14px;padding-right:14px;background:rgba(36,31,16,.07)}
   .pace-head{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding-bottom:7px;color:var(--faint);font-size:11.5px}
   .pace-head span:last-child{min-width:52px;text-align:right}
 
   /* ---- timer ---- */
-  .timer{border:1px solid var(--line);border-radius:12px;padding:20px 16px 18px;margin-bottom:16px;text-align:center;background:rgba(255,255,255,.017)}
+  .timer{border:1px solid var(--line);border-radius:12px;padding:20px 16px 18px;margin-bottom:16px;text-align:center;background:rgba(255,255,255,.30)}
   .timer .move{font-family:var(--serif);font-weight:500;font-size:25px;line-height:1.15;margin:0 0 2px;letter-spacing:-.01em}
   .timer .clock{font-family:var(--serif);font-weight:300;font-size:64px;line-height:1;font-variant-numeric:tabular-nums;margin:8px 0 4px}
   .timer .next{color:var(--dim);font-size:13px;min-height:19px}
-  .timer .track{height:4px;border-radius:2px;background:rgba(0,0,0,.24);overflow:hidden;margin:16px 0 6px}
+  .timer .track{height:4px;border-radius:2px;background:rgba(36,31,16,.13);overflow:hidden;margin:16px 0 6px}
   .timer .track i{display:block;height:100%;background:var(--chalk);border-radius:2px}
   .timer .of{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums}
   .timer .controls{display:flex;gap:9px;justify-content:center;margin-top:16px}
-  .timer.resting .clock{color:#9AA9D6}
+  .timer.resting .clock{color:#2B4A7A}
 
   .figbig{height:150px;margin:0 auto 4px;color:var(--chalk);opacity:.9}
   .figbig svg{height:100%;width:auto;display:block;margin:0 auto}
-  .timer.resting .figbig{color:#9AA9D6}
+  .timer.resting .figbig{color:#2B4A7A}
   .figsm{width:34px;height:42px;flex:none;color:var(--dim)}
   .figsm svg{height:100%;width:100%}
   .move-row[data-cur="1"] .figsm{color:var(--chalk)}
   .move-row[data-past="1"] .figsm{opacity:.4}
 
-  .moves{border:1px solid var(--line);border-radius:12px;padding:2px 14px;background:rgba(255,255,255,.017)}
+  .moves{border:1px solid var(--line);border-radius:12px;padding:2px 14px;background:rgba(255,255,255,.30)}
   .move-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line)}
   .move-row:first-child{border-top:none}
   .move-row .n{color:var(--faint);font-size:12px;width:16px;flex:none;font-variant-numeric:tabular-nums}
@@ -217,16 +217,26 @@
   .move-row.brk{padding:5px 0}
   .move-row.brk .nm{font-size:11.5px;color:var(--faint);padding-left:45px;letter-spacing:.03em}
   .move-row.brk[data-cur="1"] .nm{color:var(--chalk)}
-  .move-row[data-cur="1"]{margin:0 -14px;padding-left:14px;padding-right:14px;background:rgba(240,237,226,.05)}
+  .move-row[data-cur="1"]{margin:0 -14px;padding-left:14px;padding-right:14px;background:rgba(36,31,16,.07)}
   .move-row[data-cur="1"] .nm{color:var(--chalk)}
   .move-row[data-past="1"] .nm,.move-row[data-past="1"] .du{color:var(--faint)}
+
+  .lcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:4px 0 2px}
+  .lhead{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .litem{display:flex;align-items:flex-start;gap:6px;font-size:13.5px;line-height:1.4;padding:4px 0}
+  .litem span{flex:1;word-break:break-word}
+  .litem button{color:var(--faint);font-size:15px;line-height:1;padding:0 2px;flex:none}
+  .litem button:hover{color:var(--chalk)}
+  .lempty{font-size:12.5px;color:var(--faint);padding:4px 0}
+  .ladd{margin-top:7px}
+  .ladd input{font-size:13px;padding:7px 8px}
 
   .logchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 
   /* ---- masthead ---- */
   .mast{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px}
   .mast h1{
-    font-family:var(--serif);font-weight:300;font-size:38px;line-height:.98;
+    font-family:var(--serif);font-weight:300;font-size:33px;line-height:1.02;
     margin:0 0 10px;letter-spacing:-.015em;
   }
   .mast h1 em{font-style:italic;font-weight:500}
@@ -254,7 +264,7 @@
   .stepper .when span{display:block;color:var(--dim);font-size:12px;margin-top:1px}
 
   /* ---- person card ---- */
-  .card{border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;margin-bottom:12px;background:rgba(255,255,255,.017)}
+  .card{border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;margin-bottom:12px;background:rgba(255,255,255,.30)}
   .card .who{display:flex;align-items:center;gap:9px;margin-bottom:12px}
   .dot{width:9px;height:9px;border-radius:50%;flex:none}
   .who b{font-family:var(--serif);font-weight:500;font-size:17px;letter-spacing:-.01em}
@@ -274,6 +284,11 @@
   .task .label{flex:1;font-size:14.5px}
   .task[data-on="1"] .label{color:var(--dim)}
   .task .meta{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums}
+  .task.amt{gap:9px}
+  .task.amt .label{display:flex;flex-direction:column;gap:5px}
+  .task.amt input{width:64px;flex:none;text-align:center;padding:6px 4px}
+  .wkbar{display:block;height:3px;border-radius:2px;background:rgba(36,31,16,.13);overflow:hidden;max-width:150px}
+  .wkbar i{display:block;height:100%;border-radius:2px}
   .task:disabled{cursor:default}
   .task:disabled .box{opacity:.3}
   .task:disabled .label{color:var(--faint)}
@@ -283,16 +298,16 @@
   .strip-row{display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px;margin-bottom:3px}
   .strip-row .mo{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
   .cells{display:grid;grid-template-columns:repeat(31,1fr);gap:2px}
-  .cell{aspect-ratio:1;border-radius:1.5px;background:rgba(240,237,226,.055)}
+  .cell{aspect-ratio:1;border-radius:1.5px;background:rgba(36,31,16,.08)}
   .cell.blank{background:none}
-  .cell.future{background:rgba(240,237,226,.035)}
+  .cell.future{background:rgba(36,31,16,.05)}
   .cell.today{box-shadow:0 0 0 1.5px var(--chalk)}
   .legend{display:flex;gap:14px;color:var(--faint);font-size:11.5px;margin-top:9px;flex-wrap:wrap}
   .legend i{display:inline-block;width:9px;height:9px;border-radius:1.5px;margin-right:5px;vertical-align:-1px}
 
   /* ---- weight ---- */
   .weigh{border-top:1px solid var(--line);margin-top:10px;padding-top:12px}
-  .bar{height:5px;border-radius:3px;background:rgba(0,0,0,.22);overflow:hidden;margin:9px 0 7px}
+  .bar{height:5px;border-radius:3px;background:rgba(36,31,16,.13);overflow:hidden;margin:9px 0 7px}
   .bar i{display:block;height:100%;border-radius:3px}
   .weigh .row{display:flex;align-items:center;gap:8px}
   .weigh .row input{flex:1}
@@ -313,7 +328,7 @@
   .notice p+p{margin-top:6px;color:var(--dim);font-size:13px}
 
   /* ---- editor ---- */
-  .scrim{position:fixed;inset:0;background:rgba(6,20,17,.72);display:grid;place-items:end center;padding:0;z-index:20}
+  .scrim{position:fixed;inset:0;background:rgba(60,48,8,.62);display:grid;place-items:end center;padding:0;z-index:20}
   .sheet{
     background:var(--ground-2);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
     width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:18px 16px 26px;
@@ -342,13 +357,13 @@
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
   @media (min-width:620px){
     #app{padding:34px 28px 70px;max-width:760px;margin:0 auto}
-    .mast h1{font-size:52px}
+    .mast h1{font-size:46px}
     .strip-row{grid-template-columns:38px 1fr;gap:10px}
   }
 </style>
 
 </head>
-<body style="margin:0;background:#11322B">
+<body style="margin:0;background:#FFD633">
 <div id="app"><div id="root"></div></div>
 
 <script>
@@ -359,7 +374,7 @@
   var END   = "2027-04-18";
   var PRE_START = "2026-09-01";
   var PRE_END   = "2026-09-30";
-  var HUES  = ["#E8A05C","#7FB3A0","#D98B8B","#C7BE64","#9AA9D6","#DDA0C4","#8FC4C9","#E0B87F"];
+  var HUES  = ["#B4502E","#1F6B5C","#8C3A5E","#2B4A7A","#6B4E1F","#7A2E2E","#3F6B2A","#5C3A7A"];
   var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -407,17 +422,27 @@
     return [
       { id:"michelle", name:"Michelle", hue:HUES[0], goalLbs:20, start:180,
         daily:[{id:"am",label:"Morning routine (10 min)"},{id:"pm",label:"Evening routine (10 min)"}],
-        weekly:[{id:"lift",label:"Weights",times:3}] },
+        weekly:[{id:"lift",label:"Weights",times:3}],
+        preList:{ id:"chocolate", subject:"Chocolate" } },
       { id:"john", name:"John", hue:HUES[1], goalLbs:20, start:201,
         daily:[{id:"am",label:"Morning routine (10 min)"},{id:"pm",label:"Evening routine (10 min)"}],
         weekly:[] },
+      { id:"evan", name:"Evan", hue:HUES[3], goalLbs:30, start:215,
+        daily:[{id:"am",label:"Morning routine (10 min)"},{id:"pm",label:"Evening routine (10 min)"}],
+        weekly:[{id:"walk",label:"Walking",times:5,unit:"mi"}] },
       { id:"haley", name:"Haley", hue:HUES[2], goalLbs:0, start:null,
         daily:[],
         weekly:[{id:"cardio",label:"Cardio",times:1},{id:"pilates",label:"Pilates",times:2}] }
     ];
   }
 
-  function blankLog(){ return { days:{}, weights:{} }; }
+  function blankLog(){ return { days:{}, weights:{}, amounts:{}, lists:{} }; }
+  function listOf(m){
+    if(!m.preList) return null;
+    var log = state.logs[m.id] || blankLog();
+    var l = (log.lists && log.lists[m.preList.id]) || {};
+    return { pros: l.pros || [], cons: l.cons || [] };
+  }
 
   /* ---------- storage ---------- */
   function has(){ return typeof window !== "undefined" && window.storage; }
@@ -437,20 +462,28 @@
     }
     state.roster = roster;
 
-    var SEEDED = { michelle:180, john:201 }, patched = false;
+    var SEEDED = { michelle:180, john:201, evan:215 }, patched = false;
     var mig = null;
     try{ var mg = await window.storage.get("fc:mig", true); mig = mg && mg.value; }catch(e){ mig = null; }
-    var fresh = mig !== "4";
+    var fresh = mig !== "7";
     if(fresh){
-      if(!roster.some(function(m){ return m.id === "haley"; })){
-        roster.push(seed().filter(function(m){ return m.id === "haley"; })[0]);
-        patched = true;
-      }
-      // corrected weigh-ins take precedence over whatever was stored
-      roster.forEach(function(m){
-        if(SEEDED[m.id] !== undefined && m.start !== SEEDED[m.id]){ m.start = SEEDED[m.id]; patched = true; }
+      ["haley","evan"].forEach(function(id){
+        if(!roster.some(function(m){ return m.id === id; })){
+          roster.push(seed().filter(function(m){ return m.id === id; })[0]);
+          patched = true;
+        }
       });
-      try{ await window.storage.set("fc:mig", "4", true); }catch(e){}
+      // corrected weigh-ins take precedence over whatever was stored
+      var REHUE = {};
+      // old palette -> new, by index, so a blanket find/replace can't corrupt it
+      ["E8A05C","7FB3A0","D98B8B","C7BE64","9AA9D6","DDA0C4","8FC4C9","E0B87F"]
+        .forEach(function(old, i){ REHUE["#" + old] = HUES[i]; });
+      roster.forEach(function(m){
+        if(REHUE[m.hue]){ m.hue = REHUE[m.hue]; patched = true; }
+        if(SEEDED[m.id] !== undefined && m.start !== SEEDED[m.id]){ m.start = SEEDED[m.id]; patched = true; }
+        if(GOALS[m.id] !== undefined && m.goalLbs !== GOALS[m.id]){ m.goalLbs = GOALS[m.id]; patched = true; }
+      });
+      try{ await window.storage.set("fc:mig", "7", true); }catch(e){}
     }
     if(patched){ try{ await window.storage.set("fc:roster", JSON.stringify(roster), true); }catch(e){} }
 
@@ -522,6 +555,23 @@
     var rec = (state.logs[m.id] || blankLog()).days[d] || [];
     return rec.indexOf(id) > -1;
   }
+  // A goal like "5 miles a week" accumulates a quantity rather than ticks.
+  function amountOf(m, d, id){
+    var log = state.logs[m.id] || blankLog();
+    return (log.amounts && log.amounts[d] && log.amounts[d][id]) || 0;
+  }
+  function weekSum(m, d, id){
+    var mon = mondayOf(d), n = 0;
+    for(var i=0;i<7;i++) n += amountOf(m, shift(mon,i), id);
+    return Math.round(n*100)/100;
+  }
+  function metWeekly(m, d, h){
+    return h.unit ? weekSum(m,d,h.id) >= h.times : weekCount(m,d,h.id) >= h.times;
+  }
+  function didToday(m, d, h){
+    return h.unit ? amountOf(m,d,h.id) > 0 : ticked(m,d,h.id);
+  }
+
   function weekCount(m, d, id){
     var mon = mondayOf(d), n = 0;
     for(var i=0;i<7;i++){ if(ticked(m, shift(mon,i), id)) n++; }
@@ -531,10 +581,10 @@
   // add credit on the days they happen but never count against the days they don't.
   function fillFor(m, d){
     var rec = (state.logs[m.id] || blankLog()).days[d] || [];
-    if(!rec.length) return 0;
     var n = 0, i;
     for(i=0;i<m.daily.length;i++) if(rec.indexOf(m.daily[i].id) > -1) n++;
-    for(i=0;i<m.weekly.length;i++) if(rec.indexOf(m.weekly[i].id) > -1) n++;
+    for(i=0;i<m.weekly.length;i++) if(didToday(m, d, m.weekly[i])) n++;
+    if(!n) return 0;
     var base = m.daily.length || 1;
     return Math.min(1, n/base);
   }
@@ -542,10 +592,12 @@
   function weeklyOnly(m){ return !m.daily.length && m.weekly.length > 0; }
   function weekTarget(m){ return m.weekly.reduce(function(a,b){ return a + b.times; }, 0); }
   function weekDone(m, d){
-    return m.weekly.reduce(function(a,b){ return a + Math.min(b.times, weekCount(m, d, b.id)); }, 0);
+    return m.weekly.reduce(function(a,b){
+      return a + Math.min(b.times, b.unit ? weekSum(m,d,b.id) : weekCount(m,d,b.id));
+    }, 0);
   }
   function weekHit(m, d){
-    return m.weekly.every(function(h){ return weekCount(m, d, h.id) >= h.times; });
+    return m.weekly.every(function(h){ return metWeekly(m, d, h); });
   }
   function firstMonday(from){ var d = from; while(parse(d).getDay() !== 1) d = shift(d,1); return d; }
   function weekTally(m, lo, hi){
@@ -629,7 +681,7 @@
     else { num = span(START,t)+1; cap = "of "+TOTAL+" days"; }
     line = longDate(START)+" &ndash; "+longDate(END);
     return '<div class="mast">'+
-      '<h1>The Long <em>Season</em></h1>'+
+      '<h1>San Giacomo<br><em>200 Day</em> Challenge</h1>'+
       '<div class="span">'+line+'</div>'+
       '<div class="ticker"><b>'+num+'</b><span>'+cap+'</span></div>'+
     '</div>';
@@ -663,6 +715,22 @@
     '</div>';
   }
 
+  function amountRow(m, item, d){
+    var lock = isFuture(d) || !inAny(d);
+    var have = amountOf(m, d, item.id);
+    var wk = weekSum(m, d, item.id);
+    var pct = Math.min(100, Math.round((wk/item.times)*100));
+    return '<div class="task amt">'+
+      '<span class="label">'+esc(item.label)+
+        '<span class="wkbar"><i style="width:'+pct+'%;background:'+m.hue+'"></i></span>'+
+      '</span>'+
+      '<input type="number" step="0.1" min="0" inputmode="decimal" value="'+(have || "")+'" placeholder="0"'+
+        ' data-amt="'+m.id+'" data-aid="'+item.id+'" data-day="'+d+'"'+(lock ? " disabled" : "")+
+        ' aria-label="'+esc(item.label)+' on this day">'+
+      '<span class="meta">'+wk+'/'+item.times+' '+esc(item.unit)+'</span>'+
+    '</div>';
+  }
+
   function taskRow(m, item, kind, d){
     var on = ticked(m, d, item.id);
     var lock = isFuture(d) || !inAny(d);
@@ -673,7 +741,7 @@
     }
     return '<button class="task" data-on="'+(on?1:0)+'" data-who="'+m.id+'" data-item="'+item.id+'"'+(lock?" disabled":"")+
       ' data-day="'+d+'" aria-pressed="'+(on?"true":"false")+'">'+
-      '<span class="box" style="'+(on?"background:"+m.hue+";border-color:"+m.hue+";color:"+"#0C2520":"")+'">'+CHECK+'</span>'+
+      '<span class="box" style="'+(on?"background:"+m.hue+";border-color:"+m.hue+";color:"+"#F5C400":"")+'">'+CHECK+'</span>'+
       '<span class="label">'+esc(item.label)+'</span>'+meta+
     '</button>';
   }
@@ -707,7 +775,7 @@
     return state.roster.map(function(m){
       var done = dayDone(m, d).length, total = m.daily.length;
       var rows = m.daily.map(function(i){ return taskRow(m,i,"daily",d); }).join("")
-               + m.weekly.map(function(i){ return taskRow(m,i,"weekly",d); }).join("");
+               + m.weekly.map(function(i){ return i.unit ? amountRow(m,i,d) : taskRow(m,i,"weekly",d); }).join("");
       var tally;
       if(weeklyOnly(m)) tally = weekDone(m,d)+" of "+weekTarget(m)+" this week";
       else if(which === "pre") tally = preKept(m)+" of "+preElapsed()+" days";
@@ -735,6 +803,31 @@
         '<input type="number" step="0.1" inputmode="decimal" placeholder="Weight in lb" data-w="'+m.id+'" aria-label="Weight for '+esc(m.name)+'">'+
         '<button data-logw="'+m.id+'">Log</button>'+
       '</div>'+
+    '</div>';
+  }
+
+  function listCard(m){
+    var l = listOf(m);
+    if(!l) return "";
+    function col(side, label, items){
+      return '<div class="lcol">'+
+        '<div class="lhead">'+label+'</div>'+
+        (items.length ? items.map(function(t,i){
+          return '<div class="litem"><span>'+esc(t)+'</span>'+
+                 '<button data-lrm="'+m.id+'" data-side="'+side+'" data-i="'+i+'" aria-label="Remove">&times;</button></div>';
+        }).join("") : '<div class="lempty">Nothing yet</div>')+
+        '<div class="ladd">'+
+          '<input placeholder="Add&hellip;" data-ladd="'+m.id+'" data-side="'+side+'" aria-label="Add to '+label+'">'+
+        '</div>'+
+      '</div>';
+    }
+    return '<div class="card">'+
+      '<div class="who">'+
+        '<span class="dot" style="background:'+m.hue+'"></span>'+
+        '<b>'+esc(m.name)+' &middot; '+esc(m.preList.subject)+'</b>'+
+        '<span class="tally">'+(l.pros.length + l.cons.length)+' noted</span>'+
+      '</div>'+
+      '<div class="lcols">'+col("pros","Positive",l.pros)+col("cons","Negative",l.cons)+'</div>'+
     '</div>';
   }
 
@@ -777,6 +870,11 @@
       '<div class="notice"><p>'+lead+'</p><p>Days ticked here are counted separately &mdash; they build the habit without touching the '+TOTAL+'-day streak or the monthly targets.</p></div>'+
       stepper("pre")+
       checkCards(state.preCursor,"pre")+
+      (state.roster.some(function(m){ return m.preList; })
+        ? '<div class="head" style="margin-top:28px"><h2>Weighing it up</h2>'+
+          '<div class="aside">before the challenge starts</div></div>'+
+          state.roster.map(listCard).join("")
+        : "")+
       '<div class="head" style="margin-top:28px"><h2>September so far</h2></div>'+
       strips+
     '</section>';
@@ -864,9 +962,9 @@
       '<div class="head"><h2>The season</h2><div class="aside">every day, '+MONTHS[parse(START).getMonth()]+' to '+MONTHS[parse(END).getMonth()]+'</div></div>'+
       blocks+
       '<div class="legend">'+
-        '<span><i style="background:rgba(240,237,226,.055)"></i>skipped</span>'+
-        '<span><i style="background:#7FB3A0;opacity:.45"></i>some of it</span>'+
-        '<span><i style="background:#7FB3A0"></i>all of it</span>'+
+        '<span><i style="background:rgba(36,31,16,.08)"></i>skipped</span>'+
+        '<span><i style="background:#1F6B5C;opacity:.45"></i>some of it</span>'+
+        '<span><i style="background:#1F6B5C"></i>all of it</span>'+
         '<span><i style="background:none;box-shadow:0 0 0 1.5px var(--chalk)"></i>today</span>'+
       '</div>'+
       '<div class="fine" style="margin-top:22px">Targets spread the goal evenly across the '+TOTAL+' days. Real weight moves in steps, not a straight line &mdash; a month that lands above the number isn&rsquo;t a month lost.</div>'+
@@ -1174,7 +1272,7 @@
   function connectionNotice(){
     var mode = window.CHALLENGE_MODE;
     if(mode === "supabase"){
-      return '<div class="notice" style="border-left-color:#7FB3A0"><p>Shared &mdash; everyone sees the same entries.</p></div>';
+      return '<div class="notice" style="border-left-color:#1F6B5C"><p>Shared &mdash; everyone sees the same entries.</p></div>';
     }
     if(mode === "local"){
       return '<div class="notice"><p>Saving to this device only.</p>'+
@@ -1287,6 +1385,17 @@
       if(state.timer.on){ stopTimer(); draw(); } else { runTimer(); }
       return;
     }
+    if(t.dataset.lrm){
+      var lm = state.roster.filter(function(x){ return x.id === t.dataset.lrm; })[0];
+      var llog = state.logs[lm.id] || (state.logs[lm.id] = blankLog());
+      llog.lists = llog.lists || {};
+      var bucket = llog.lists[lm.preList.id] || (llog.lists[lm.preList.id] = { pros:[], cons:[] });
+      bucket[t.dataset.side] = bucket[t.dataset.side] || [];
+      bucket[t.dataset.side].splice(+t.dataset.i, 1);
+      draw(); await saveLog(lm.id);
+      return;
+    }
+
     if(t.dataset.selftest){
       var probe = "fc:selftest", stamp = String(Date.now());
       try{
@@ -1462,6 +1571,45 @@
     }
     if(el.dataset.hab) state.editing[el.dataset.hab][+el.dataset.i].label = el.value;
     if(el.dataset.times) state.editing.weekly[+el.dataset.times].times = Math.max(1, Math.min(7, +el.value || 1));
+  });
+
+  async function addToList(el){
+    var text = el.value.trim();
+    if(!text) return;
+    var m = state.roster.filter(function(x){ return x.id === el.dataset.ladd; })[0];
+    if(!m || !m.preList) return;
+    var log = state.logs[m.id] || (state.logs[m.id] = blankLog());
+    log.lists = log.lists || {};
+    var bucket = log.lists[m.preList.id] || (log.lists[m.preList.id] = { pros:[], cons:[] });
+    bucket[el.dataset.side] = bucket[el.dataset.side] || [];
+    bucket[el.dataset.side].push(text);
+    el.value = "";
+    draw();
+    await saveLog(m.id);
+  }
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && e.target.dataset && e.target.dataset.ladd){
+      e.preventDefault();
+      addToList(e.target);
+    }
+  });
+
+  document.addEventListener("change", async function(e){
+    if(e.target.dataset && e.target.dataset.ladd){ await addToList(e.target); return; }
+    var el = e.target;
+    if(!el.dataset.amt) return;
+    var id = el.dataset.amt, aid = el.dataset.aid, d = el.dataset.day;
+    var v = parseFloat(el.value);
+    var log = state.logs[id] || (state.logs[id] = blankLog());
+    log.amounts = log.amounts || {};
+    if(isNaN(v) || v <= 0){
+      if(log.amounts[d]){ delete log.amounts[d][aid]; if(!Object.keys(log.amounts[d]).length) delete log.amounts[d]; }
+    } else {
+      (log.amounts[d] = log.amounts[d] || {})[aid] = v;
+    }
+    draw();
+    await saveLog(id);
   });
 
   document.addEventListener("keydown", function(e){
