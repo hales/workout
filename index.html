@@ -20,8 +20,8 @@
   "use strict";
 
   // ---- FILL THESE IN to share data across the family ----------------
-  var SUPABASE_URL  = "https://syxvutpzywivqvaismzh.supabase.co";   // e.g. "https://abcdefgh.supabase.co"
-  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5eHZ1dHB6eXdpdnF2YWlzbXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjU4NjMsImV4cCI6MjEwNDg0MTg2M30.QfXAHapoDWyNIfOk1N_sFX0pVraovdcsMCZ5FrA69s4";   // the anon/publishable key
+  var SUPABASE_URL  = "";   // e.g. "https://abcdefgh.supabase.co"
+  var SUPABASE_ANON = "";   // the anon/publishable key
   var TABLE         = "kv";
   // -------------------------------------------------------------------
 
@@ -39,10 +39,25 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
+  window.CHALLENGE_BUILD = "2026-09-13-d";
+  window.CHALLENGE_LOG = [];
+  function note(line){
+    window.CHALLENGE_LOG.push(line);
+    if(window.CHALLENGE_LOG.length > 12) window.CHALLENGE_LOG.shift();
+  }
   function rest(path, opts){
+    var verb = (opts && opts.method) || "GET";
+    var short = path.split("?")[0] + (path.indexOf("?") > -1 ? "?…" : "");
     return fetch(SUPABASE_URL + "/rest/v1/" + path, opts).then(function(r){
-      if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + " " + t); });
+      if(!r.ok) return r.text().then(function(t){
+        note(verb + " " + short + " → " + r.status + " " + String(t).slice(0,70));
+        throw new Error(r.status + " " + t);
+      });
+      note(verb + " " + short + " → " + r.status);
       return r.status === 204 ? null : r.json();
+    }).catch(function(e){
+      if(String(e.message).indexOf("→") === -1) note(verb + " " + short + " → network error: " + e.message);
+      throw e;
     });
   }
 
@@ -77,6 +92,7 @@
     var rows = await rest(TABLE + "?select=key,value");
     var map = {};
     (rows || []).forEach(function(r){ map[r.key] = r.value; });
+    note("snapshot: " + Object.keys(map).length + " keys [" + Object.keys(map).join(", ") + "]");
     cache = map; cacheAt = now;
     return map;
   }
@@ -308,6 +324,12 @@
   .sheet-foot{display:flex;gap:10px;align-items:center;margin-top:20px}
   .sheet-foot .solid{flex:1}
 
+  .diag{margin-top:30px;border-top:1px solid var(--line);padding-top:12px}
+  .diag summary{color:var(--faint);font-size:12px;cursor:pointer;list-style:none}
+  .diag summary::-webkit-details-marker{display:none}
+  .diag summary::before{content:"▸ "}
+  .diag[open] summary::before{content:"▾ "}
+  .diagbody{font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;color:var(--dim);margin-top:9px;word-break:break-word}
   .fine{color:var(--faint);font-size:12px;line-height:1.55;border-top:1px solid var(--line);padding-top:14px}
 
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
@@ -608,10 +630,6 @@
 
   function notice(){
     var out = "";
-    if(window.CHALLENGE_MODE === "local"){
-      out += '<div class="notice"><p>Saving to this device only.</p>'+
-             '<p>Add your Supabase keys in index.html so everyone sees the same entries.</p></div>';
-    }
     if(state.warn){
       out += '<div class="notice"><p>'+esc(state.warn)+'</p></div>';
     }
@@ -1146,6 +1164,29 @@
     '</div></div>';
   }
 
+  function connectionNotice(){
+    var mode = window.CHALLENGE_MODE;
+    if(mode === "supabase"){
+      return '<div class="notice" style="border-left-color:#7FB3A0"><p>Shared &mdash; everyone sees the same entries.</p></div>';
+    }
+    if(mode === "local"){
+      return '<div class="notice"><p>Saving to this device only.</p>'+
+             '<p>Lines 23 and 24 of index.html are still blank. Paste your Supabase URL and anon key there.</p></div>';
+    }
+    return "";
+  }
+
+  function diagnostics(){
+    var lines = (window.CHALLENGE_LOG || []).slice(-10);
+    return '<details class="diag"><summary>Connection details</summary>'+
+      '<div class="diagbody">'+
+        '<div>build '+(window.CHALLENGE_BUILD || "unknown")+' &middot; mode '+(window.CHALLENGE_MODE || "unknown")+'</div>'+
+        (lines.length ? lines.map(function(l){ return '<div>'+esc(l)+'</div>'; }).join("")
+                      : '<div>No requests recorded yet.</div>')+
+        '<button class="ghost" data-selftest="1" style="margin-top:10px">Run self-test</button>'+
+      '</div></details>';
+  }
+
   function draw(){
     var body;
     if(state.tab === "pre"){
@@ -1159,7 +1200,7 @@
         '<div class="fine">Everyone using this page sees the same entries &mdash; that&rsquo;s the point, but it does mean weights are shared. Leave the weight fields blank if you&rsquo;d rather only track habits.</div>';
     }
     document.getElementById("root").innerHTML =
-      masthead() + tabsNav() + body + editor() + routineEditor();
+      masthead() + tabsNav() + connectionNotice() + body + diagnostics() + editor() + routineEditor();
   }
 
   /* ---------- timer engine ---------- */
@@ -1239,6 +1280,22 @@
       if(state.timer.on){ stopTimer(); draw(); } else { runTimer(); }
       return;
     }
+    if(t.dataset.selftest){
+      var probe = "fc:selftest", stamp = String(Date.now());
+      try{
+        await window.storage.set(probe, stamp, true);
+        if(window.storage.__bust) window.storage.__bust();
+        var back = await window.storage.get(probe, true);
+        window.CHALLENGE_LOG.push(back && back.value === stamp
+          ? "SELF-TEST PASSED — wrote and read back " + stamp
+          : "SELF-TEST FAILED — wrote " + stamp + " but read " + (back && back.value));
+      }catch(err){
+        window.CHALLENGE_LOG.push("SELF-TEST FAILED — " + err.message);
+      }
+      draw();
+      return;
+    }
+
     if(t.dataset.tdone){ beep(880, 380); stopTimer(); state.timer.done = true; draw(); return; }
     if(t.dataset.treset){ resetTimer(); draw(); return; }
     if(t.dataset.tskip){
