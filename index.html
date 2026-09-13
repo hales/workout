@@ -39,24 +39,31 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
-  window.CHALLENGE_BUILD = "2026-09-13-d";
+  window.CHALLENGE_BUILD = "2026-09-13-e";
   window.CHALLENGE_LOG = [];
   function note(line){
     window.CHALLENGE_LOG.push(line);
     if(window.CHALLENGE_LOG.length > 12) window.CHALLENGE_LOG.shift();
   }
   function rest(path, opts){
-    var verb = (opts && opts.method) || "GET";
+    opts = opts || {};
+    // Every request needs the key. GETs used to be sent bare, which 401'd.
+    if(!opts.headers) opts.headers = head();
+    var verb = opts.method || "GET";
     var short = path.split("?")[0] + (path.indexOf("?") > -1 ? "?…" : "");
     return fetch(SUPABASE_URL + "/rest/v1/" + path, opts).then(function(r){
-      if(!r.ok) return r.text().then(function(t){
-        note(verb + " " + short + " → " + r.status + " " + String(t).slice(0,70));
-        throw new Error(r.status + " " + t);
+      return r.text().then(function(body){
+        if(!r.ok){
+          note(verb + " " + short + " → " + r.status + " " + String(body).slice(0,70));
+          var err = new Error(r.status + " " + body); err.logged = true; throw err;
+        }
+        note(verb + " " + short + " → " + r.status);
+        // return=minimal answers 200 with an empty body, so don't assume JSON
+        if(!body) return null;
+        try{ return JSON.parse(body); }catch(e){ return null; }
       });
-      note(verb + " " + short + " → " + r.status);
-      return r.status === 204 ? null : r.json();
     }).catch(function(e){
-      if(String(e.message).indexOf("→") === -1) note(verb + " " + short + " → network error: " + e.message);
+      if(!e.logged) note(verb + " " + short + " → network error: " + e.message);
       throw e;
     });
   }
