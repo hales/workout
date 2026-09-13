@@ -1,9 +1,104 @@
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#11322B" />
+<meta name="description" content="Family accountability challenge tracker" />
+<title>The Long Season</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+/* ------------------------------------------------------------------
+   Storage adapter.
+   Inside Claude, window.storage already exists and is used as-is.
+   Outside it, this provides the same four methods backed by either
+   Supabase (shared across everyone) or localStorage (this device only).
+   ------------------------------------------------------------------ */
+(function(){
+  "use strict";
 
+  // ---- FILL THESE IN to share data across the family ----------------
+  var SUPABASE_URL  = "";   // e.g. "https://abcdefgh.supabase.co"
+  var SUPABASE_ANON = "";   // the anon/publishable key
+  var TABLE         = "kv";
+  // -------------------------------------------------------------------
 
+  if(window.storage) return;                       // running inside Claude
+
+  var live = !!(SUPABASE_URL && SUPABASE_ANON);
+  window.CHALLENGE_MODE = live ? "supabase" : "local";
+
+  function head(extra){
+    var h = {
+      "apikey": SUPABASE_ANON,
+      "Authorization": "Bearer " + SUPABASE_ANON,
+      "Content-Type": "application/json"
+    };
+    for(var k in (extra||{})) h[k] = extra[k];
+    return h;
+  }
+  function rest(path, opts){
+    return fetch(SUPABASE_URL + "/rest/v1/" + path, opts).then(function(r){
+      if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + " " + t); });
+      return r.status === 204 ? null : r.json();
+    });
+  }
+
+  var local = {
+    get: function(k){
+      var v = window.localStorage.getItem("fc::" + k);
+      if(v === null) throw new Error("not found");
+      return { key:k, value:v, shared:true };
+    },
+    set: function(k, v){ window.localStorage.setItem("fc::" + k, v); return { key:k, value:v, shared:true }; },
+    del: function(k){ window.localStorage.removeItem("fc::" + k); return { key:k, deleted:true, shared:true }; },
+    list: function(p){
+      var out = [];
+      for(var i=0;i<window.localStorage.length;i++){
+        var k = window.localStorage.key(i);
+        if(k.indexOf("fc::") === 0){
+          var bare = k.slice(4);
+          if(!p || bare.indexOf(p) === 0) out.push(bare);
+        }
+      }
+      return { keys:out, prefix:p, shared:true };
+    }
+  };
+
+  window.storage = {
+    get: async function(key){
+      if(!live) return local.get(key);
+      var rows = await rest(TABLE + "?key=eq." + encodeURIComponent(key) + "&select=value");
+      if(!rows || !rows.length) throw new Error("not found: " + key);
+      return { key:key, value:rows[0].value, shared:true };
+    },
+    set: async function(key, value){
+      if(!live) return local.set(key, value);
+      await rest(TABLE, {
+        method: "POST",
+        headers: head({ "Prefer": "resolution=merge-duplicates,return=minimal" }),
+        body: JSON.stringify({ key:key, value:value, updated_at:new Date().toISOString() })
+      });
+      return { key:key, value:value, shared:true };
+    },
+    "delete": async function(key){
+      if(!live) return local.del(key);
+      await rest(TABLE + "?key=eq." + encodeURIComponent(key), { method:"DELETE", headers:head() });
+      return { key:key, deleted:true, shared:true };
+    },
+    list: async function(prefix){
+      if(!live) return local.list(prefix);
+      var q = TABLE + "?select=key";
+      if(prefix) q += "&key=like." + encodeURIComponent(prefix + "*");
+      var rows = await rest(q);
+      return { keys:(rows||[]).map(function(r){ return r.key; }), prefix:prefix, shared:true };
+    }
+  };
+})();
+
+</script>
 <style>
   :root{
     --ground:#11322B;
@@ -206,6 +301,8 @@
   }
 </style>
 
+</head>
+<body style="margin:0;background:#11322B">
 <div id="app"><div id="root"></div></div>
 
 <script>
@@ -494,6 +591,10 @@
 
   function notice(){
     var out = "";
+    if(window.CHALLENGE_MODE === "local"){
+      out += '<div class="notice"><p>Saving to this device only.</p>'+
+             '<p>Add your Supabase keys in index.html so everyone sees the same entries.</p></div>';
+    }
     if(state.warn){
       out += '<div class="notice"><p>'+esc(state.warn)+'</p></div>';
     }
@@ -1286,6 +1387,19 @@
     if(e.key === "Escape" && (state.editing || state.editRoutine)){ state.editing = null; state.editRoutine = null; draw(); }
   });
 
+  /* ---------- keep the family in sync ---------- */
+  var refreshing = false;
+  async function refresh(){
+    if(refreshing || !state.ready || state.editing || state.editRoutine || state.timer.on) return;
+    refreshing = true;
+    try{ await load(); draw(); }catch(e){}
+    refreshing = false;
+  }
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible") refresh();
+  });
+  window.addEventListener("focus", refresh);
+
   /* ---------- boot ---------- */
   (async function(){
     document.getElementById("root").innerHTML = masthead() +
@@ -1301,3 +1415,6 @@
   })();
 })();
 </script>
+
+</body>
+</html>
