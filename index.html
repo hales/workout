@@ -39,7 +39,7 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
-  window.CHALLENGE_BUILD = "2026-09-13-g";
+  window.CHALLENGE_BUILD = "2026-09-13-h";
   window.CHALLENGE_LOG = [];
   function note(line){
     window.CHALLENGE_LOG.push(line);
@@ -462,10 +462,10 @@
     }
     state.roster = roster;
 
-    var SEEDED = { michelle:180, john:201, evan:215 }, patched = false;
+    var SEEDED = { michelle:180, john:201, evan:215 }, GOALS = { evan:30 }, patched = false;
     var mig = null;
     try{ var mg = await window.storage.get("fc:mig", true); mig = mg && mg.value; }catch(e){ mig = null; }
-    var fresh = mig !== "7";
+    var fresh = mig !== "8";
     if(fresh){
       ["haley","evan"].forEach(function(id){
         if(!roster.some(function(m){ return m.id === id; })){
@@ -482,8 +482,10 @@
         if(REHUE[m.hue]){ m.hue = REHUE[m.hue]; patched = true; }
         if(SEEDED[m.id] !== undefined && m.start !== SEEDED[m.id]){ m.start = SEEDED[m.id]; patched = true; }
         if(GOALS[m.id] !== undefined && m.goalLbs !== GOALS[m.id]){ m.goalLbs = GOALS[m.id]; patched = true; }
+        var seeded = seed().filter(function(x){ return x.id === m.id; })[0];
+        if(seeded && seeded.preList && !m.preList){ m.preList = seeded.preList; patched = true; }
       });
-      try{ await window.storage.set("fc:mig", "7", true); }catch(e){}
+      try{ await window.storage.set("fc:mig", "8", true); }catch(e){}
     }
     if(patched){ try{ await window.storage.set("fc:roster", JSON.stringify(roster), true); }catch(e){} }
 
@@ -1633,7 +1635,16 @@
   (async function(){
     document.getElementById("root").innerHTML = masthead() +
       '<div class="notice"><p>Loading everyone&rsquo;s entries&hellip;</p></div>';
-    await load();
+    try{
+      await load();
+    }catch(err){
+      document.getElementById("root").innerHTML = masthead() +
+        '<div class="notice"><p>Something went wrong while loading.</p>'+
+        '<p>' + esc(String(err && err.message || err)) + '</p>'+
+        '<p>Open Connection details below and send Haley a screenshot.</p></div>' +
+        diagnostics();
+      return;
+    }
     var t = today();
     state.cursor = t < START ? START : (t > END ? END : t);
     state.preCursor = t < PRE_START ? PRE_START : (t > PRE_END ? PRE_END : t);
