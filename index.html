@@ -67,12 +67,27 @@
     }
   };
 
+  // Keys contain colons, which PostgREST treats as reserved inside a filter
+  // value. Rather than fight the quoting rules, read the whole table in one
+  // request and pick the key out here. It is a handful of small rows.
+  var cache = null, cacheAt = 0;
+  async function snapshot(){
+    var now = Date.now();
+    if(cache && now - cacheAt < 1500) return cache;
+    var rows = await rest(TABLE + "?select=key,value");
+    var map = {};
+    (rows || []).forEach(function(r){ map[r.key] = r.value; });
+    cache = map; cacheAt = now;
+    return map;
+  }
+  function bust(){ cache = null; cacheAt = 0; }
+
   window.storage = {
     get: async function(key){
       if(!live) return local.get(key);
-      var rows = await rest(TABLE + "?key=eq." + encodeURIComponent(key) + "&select=value");
-      if(!rows || !rows.length) throw new Error("not found: " + key);
-      return { key:key, value:rows[0].value, shared:true };
+      var map = await snapshot();
+      if(!(key in map)) throw new Error("not found: " + key);
+      return { key:key, value:map[key], shared:true };
     },
     set: async function(key, value){
       if(!live) return local.set(key, value);
@@ -81,19 +96,21 @@
         headers: head({ "Prefer": "resolution=merge-duplicates,return=minimal" }),
         body: JSON.stringify({ key:key, value:value, updated_at:new Date().toISOString() })
       });
+      if(cache){ cache[key] = value; }
       return { key:key, value:value, shared:true };
     },
     "delete": async function(key){
       if(!live) return local.del(key);
-      await rest(TABLE + "?key=eq." + encodeURIComponent(key), { method:"DELETE", headers:head() });
+      await rest(TABLE + "?key=eq." + encodeURIComponent('"' + key + '"'), { method:"DELETE", headers:head() });
+      bust();
       return { key:key, deleted:true, shared:true };
     },
+    __bust: bust,
     list: async function(prefix){
       if(!live) return local.list(prefix);
-      var q = TABLE + "?select=key";
-      if(prefix) q += "&key=like." + encodeURIComponent(prefix + "*");
-      var rows = await rest(q);
-      return { keys:(rows||[]).map(function(r){ return r.key; }), prefix:prefix, shared:true };
+      var map = await snapshot();
+      var keys = Object.keys(map).filter(function(k){ return !prefix || k.indexOf(prefix) === 0; });
+      return { keys:keys, prefix:prefix, shared:true };
     }
   };
 })();
@@ -1392,7 +1409,7 @@
   async function refresh(){
     if(refreshing || !state.ready || state.editing || state.editRoutine || state.timer.on) return;
     refreshing = true;
-    try{ await load(); draw(); }catch(e){}
+    try{ if(window.storage && window.storage.__bust) window.storage.__bust(); await load(); draw(); }catch(e){}
     refreshing = false;
   }
   document.addEventListener("visibilitychange", function(){
