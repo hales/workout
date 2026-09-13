@@ -19,7 +19,7 @@
 (function(){
   "use strict";
 
-  // ---- FILL THESE IN to share data across the family ----------------
+   // ---- FILL THESE IN to share data across the family ----------------
   var SUPABASE_URL  = "https://syxvutpzywivqvaismzh.supabase.co";   // e.g. "https://abcdefgh.supabase.co"
   var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5eHZ1dHB6eXdpdnF2YWlzbXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjU4NjMsImV4cCI6MjEwNDg0MTg2M30.QfXAHapoDWyNIfOk1N_sFX0pVraovdcsMCZ5FrA69s4";
   var TABLE         = "kv";
@@ -39,7 +39,7 @@
     for(var k in (extra||{})) h[k] = extra[k];
     return h;
   }
-  window.CHALLENGE_BUILD = "2026-09-13-h";
+  window.CHALLENGE_BUILD = "2026-09-13-i";
   window.CHALLENGE_LOG = [];
   function note(line){
     window.CHALLENGE_LOG.push(line);
@@ -402,18 +402,21 @@
 
   // secs:0 means open-ended — the clock counts up until you tap Finish.
   function seedRoutine(){
-    var work = [
-      ["High knees",60],["Lunges",60],["Cross-arm movements",60],["Up-down arm movements",60],
-      ["Rest",60],["Straight-arm punches",60],["Upper cuts",60],
-      ["Balance on right foot",60],["Balance on left foot",60],["Jump rope",60],
+    var seq = [
+      ["High knees",60],            ["Break",15],
+      ["Lunges",60],                ["Break",15],
+      ["Cross-arm movements",60],   ["Break",5],
+      ["Up-down arm movements",60],
+      ["Rest",60],                  ["Break",15],
+      ["Straight-arm punches",60],  ["Break",5],
+      ["Upper cuts",60],            ["Break",15],
+      ["Balance on right foot",60], ["Break",5],
+      ["Balance on left foot",60],  ["Break",15],
+      ["Jump rope",60],
       ["Stretching",0]
     ];
-    var moves = [];
-    work.forEach(function(w,i){
-      if(i) moves.push({ label:"Break", secs:15 });
-      moves.push({ label:w[0], secs:w[1] });
-    });
-    return { name:"The daily routine", moves:moves };
+    return { name:"The daily routine",
+             moves: seq.map(function(x){ return { label:x[0], secs:x[1] }; }) };
   }
   function isBreak(mv){ return /^break$/i.test(String(mv.label||"").trim()); }
   function isOpen(mv){ return !mv.secs; }
@@ -465,7 +468,7 @@
     var SEEDED = { michelle:180, john:201, evan:215 }, GOALS = { evan:30 }, patched = false;
     var mig = null;
     try{ var mg = await window.storage.get("fc:mig", true); mig = mg && mg.value; }catch(e){ mig = null; }
-    var fresh = mig !== "8";
+    var fresh = mig !== "9";
     if(fresh){
       ["haley","evan"].forEach(function(id){
         if(!roster.some(function(m){ return m.id === id; })){
@@ -485,7 +488,7 @@
         var seeded = seed().filter(function(x){ return x.id === m.id; })[0];
         if(seeded && seeded.preList && !m.preList){ m.preList = seeded.preList; patched = true; }
       });
-      try{ await window.storage.set("fc:mig", "8", true); }catch(e){}
+      try{ await window.storage.set("fc:mig", "9", true); }catch(e){}
     }
     if(patched){ try{ await window.storage.set("fc:roster", JSON.stringify(roster), true); }catch(e){} }
 
@@ -1634,7 +1637,8 @@
   /* ---------- boot ---------- */
   (async function(){
     document.getElementById("root").innerHTML = masthead() +
-      '<div class="notice"><p>Loading everyone&rsquo;s entries&hellip;</p></div>';
+      '<div class="notice"><p>Loading everyone&rsquo;s entries&hellip;</p>'+
+      '<p>build '+(window.CHALLENGE_BUILD||"unknown")+' &middot; mode '+(window.CHALLENGE_MODE||"unknown")+'</p></div>';
     try{
       await load();
     }catch(err){
